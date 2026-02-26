@@ -75,11 +75,11 @@ There are only a handful of metadata keys, defined in the table below:
 
     "n", "Integer from 0 to 15", "0", "The numerator for the fractional scale."
 
-    "d", "Integer from 0 to 15", "0", "The denominator for the fractional scale. Must be ``> n`` when non-zero."
+    "d", "Integer from 0 to 15", "0", "The denominator for the fractional scale. Must be ``>= n`` when non-zero."
 
-    "v", "Integer from 0 to 2",  "0", "The vertical alignment to use for fractionally scaled text (n < d). ``0`` - top, ``1`` - bottom, ``2`` - centered"
+    "v", "Integer from 0 to 2",  "0", "The vertical alignment to use for fractionally scaled text (``n <= d``). ``0`` - top, ``1`` - bottom, ``2`` - centered"
 
-    "h", "Integer from 0 to 2",  "0", "The horizontal alignment to use for fractionally scaled text (n < d). ``0`` - left, ``1`` - right, ``2`` - centered"
+    "h", "Integer from 0 to 2",  "0", "The horizontal alignment to use for fractionally scaled text (``n <= d``). ``0`` - left, ``1`` - right, ``2`` - centered"
 
 
 How it works
@@ -164,7 +164,7 @@ fractionally scaled render area at top, bottom or middle. Similarly, the ``h`` k
 does horizontal alignment — left, right or centered. Note that alignment
 here is not actual text alignment, it refers to how the fractionally scaled
 render area fits inside the full render area of size ``s * w`` by ``s`` cells.
-Thus, alignment only applies when ``n < d``.
+Thus, alignment only applies when ``n <= d``.
 
 When using fractional scaling one often wants to fit more than a single
 character per cell. To accommodate that, there is the ``w`` key. This specifies

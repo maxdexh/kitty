@@ -832,7 +832,7 @@ ensure_glyph_render_scratch_space(size_t sz) {
 static float
 effective_scale(RunFont rf) {
     float ans = MAX(1u, rf.scale);
-    if (rf.subscale_n && rf.subscale_d && rf.subscale_n < rf.subscale_d) {
+    if (rf.subscale_n && rf.subscale_d && rf.subscale_n <= rf.subscale_d) {
         ans *= ((float)rf.subscale_n) / rf.subscale_d;
     }
     return ans;
@@ -908,7 +908,7 @@ static void
 calculate_regions_for_line(RunFont rf, unsigned cell_height, Region *src, Region *dest) {
     unsigned src_height = src->bottom;
     Region src_in_full_coords = *src; unsigned full_dest_height = cell_height * rf.scale;
-    if (rf.subscale_n && rf.subscale_d) {
+    if (rf.subscale_n && rf.subscale_d && rf.subscale_n <= rf.subscale_d) {
         switch(rf.align.vertical) {
             case 0: break; // top aligned no change
             case 1: // bottom aligned
@@ -1061,7 +1061,7 @@ render_box_cell(FontGroup *fg, RunFont rf, CPUCell *cpu_cell, GPUCell *gpu_cell,
     if (scale != 1) apply_scale_to_font_group(fg, NULL);
     ensure_canvas_can_fit(fg, num_glyphs + 1, rf.scale);  // in case unscaled size is larger is than scaled size
     unsigned mask_stride = scaled_metrics.cell_width * num_glyphs, right_shift = 0;
-    if (rf.subscale_n && rf.subscale_d && rf.align.horizontal && scaled_metrics.cell_width <= unscaled_metrics.cell_width) {
+    if (rf.subscale_n && rf.subscale_d && rf.align.horizontal && rf.subscale_n <= rf.subscale_d && scaled_metrics.cell_width <= unscaled_metrics.cell_width) {
         int delta = unscaled_metrics.cell_width * num_cells - mask_stride;
         if (rf.align.horizontal == 2) delta /= 2;
         if (delta > 0) {
@@ -1136,7 +1136,7 @@ apply_horizontal_alignment(pixel *canvas, RunFont rf, bool center_glyph, GlyphRe
 #else
     (void)was_colored;
 #endif
-    if (rf.subscale_n && rf.subscale_d && rf.align.horizontal && rf.subscale_n < rf.subscale_d) {
+    if (rf.subscale_n && rf.subscale_d && rf.align.horizontal && rf.subscale_n <= rf.subscale_d) {
         delta = max_render_width - ri.rendered_width;
         if (rf.align.horizontal == 2) delta /= 2;
     } else if (center_glyph && num_glyphs && num_cells > 1 && ri.rendered_width < max_render_width) {
@@ -1161,7 +1161,7 @@ render_group(
 
     unsigned num_scaled_cells = MAX(1u, (unsigned)ceil(num_cells / scale));
     const unsigned canvas_width = num_cells * unscaled_metrics.cell_width;
-    const bool rendering_in_smaller_area = rf.subscale_n < rf.subscale_d;
+    const bool rendering_in_smaller_area = rf.subscale_n && rf.subscale_d && rf.subscale_n <= rf.subscale_d;
     if (rendering_in_smaller_area) {
         // scw might be 1 px less than scaled_metrics.cell_width because of rounding, but it is the correct value
         // to use to determine the num of scaled cells
